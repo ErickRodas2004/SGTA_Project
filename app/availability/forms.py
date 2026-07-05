@@ -2,7 +2,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField, TimeField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired, InputRequired, ValidationError
 
 
 # Mapping integer day → Spanish display name
@@ -24,7 +24,7 @@ class AvailabilityForm(FlaskForm):
         'Día de la semana',
         coerce=int,
         choices=DAY_CHOICES,
-        validators=[DataRequired(message='Selecciona un día.')],
+        validators=[InputRequired(message='Selecciona un día.')],
     )
     start_time = TimeField(
         'Hora de inicio',

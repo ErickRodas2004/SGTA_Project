@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import DateField, SelectField, StringField, TextAreaField, TimeField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
 
-from app.models import User
+from app.models import User, Availability
 
 
 class AppointmentForm(FlaskForm):
@@ -46,11 +46,17 @@ class AppointmentForm(FlaskForm):
     submit = SubmitField('Solicitar tutoría')
 
     def __init__(self, *args, **kwargs):
-        """Load docente choices dynamically."""
+        """Load docente choices dynamically — only those with active slots."""
         super().__init__(*args, **kwargs)
-        docentes = User.query.filter_by(role='docente', is_active=True).order_by(User.username).all()
         self.teacher.choices = [
-            (d.id, f'{d.username} — {d.email}') for d in docentes
+            (t.id, t.username)
+            for t in User.query
+            .filter_by(role='docente', is_active=True)
+            .join(Availability)
+            .filter(Availability.is_available == True)
+            .distinct()
+            .order_by(User.username)
+            .all()
         ]
 
     def validate_scheduled_date(self, field):

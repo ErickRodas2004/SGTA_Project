@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Horarios Disponibles{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4"><i class="bi bi-calendar-week me-2"></i>Horarios Disponibles</h1>
+
+  {% if teachers %}
+    <div class="row">
+      {% for teacher in teachers %}
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="bi bi-person-video3 me-1"></i>{{ teacher.username }}
+              </h5>
+              <p class="card-text text-muted">
+                <i class="bi bi-envelope me-1"></i>{{ teacher.email }}
+              </p>
+              <a href="{{ url_for('availability.teacher_slots', teacher_id=teacher.id) }}"
+                 class="btn btn-primary">
+                <i class="bi bi-eye me-1"></i>Ver Horarios
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      No hay horarios disponibles en este momento.
+    </div>
+    <a href="{{ url_for('appointments.request_tutoria') }}" class="btn btn-outline-primary">
+      Solicitar Tutoría Directamente
+    </a>
+  {% endif %}
+</div>
+{% endblock %}

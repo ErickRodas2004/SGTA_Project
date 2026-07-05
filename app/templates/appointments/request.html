@@ -15,6 +15,7 @@
                     </p>
                 </div>
 
+                {% if form.teacher.choices %}
                 <form method="POST" action="{{ url_for('appointments.request_tutoria') }}">
                     {{ form.hidden_tag() }}
 
@@ -66,6 +67,21 @@
                         </a>
                     </div>
                 </form>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2 fs-4"></i>
+                    <p class="mb-1">No hay docentes con disponibilidad horaria en este momento.</p>
+                    <p class="mb-0 small">
+                        Consultá <a href="{{ url_for('availability.list_teachers') }}" class="alert-link">Horarios Disponibles</a>
+                        para ver cuándo se registren nuevos horarios.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <a href="{{ url_for('appointments.my_tutorias') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Volver a mis tutorías
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

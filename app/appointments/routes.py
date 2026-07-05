@@ -1,14 +1,30 @@
 """Appointments routes — student request/list/cancel + docente accept/feedback."""
 
+from datetime import date, datetime, timedelta, time
+
 from flask import redirect, render_template, request, url_for, flash
 from flask_login import current_user, login_required
 
 from app.extensions import db
-from app.models import Appointment
+from app.models import Appointment, User, Availability
 from app.decorators import roles_required
 from app.log_audit import log_audit
 from app.appointments import appointments_bp
 from app.appointments.forms import AppointmentForm, FeedbackForm
+
+
+def _next_weekday(target_dow: int, at_time: time | None = None) -> date:
+    """Return the next occurrence of `target_dow` (0=Monday) from today.
+    
+    If `at_time` is given and target_dow is today, returns today only
+    if the time hasn't passed yet. Otherwise jumps to next week.
+    """
+    today = date.today()
+    today_dow = today.weekday()
+    days_ahead = target_dow - today_dow
+    if days_ahead < 0 or (days_ahead == 0 and at_time and datetime.now().time() >= at_time):
+        days_ahead += 7
+    return today + timedelta(days=days_ahead)
 
 
 # =========================================================================
@@ -22,7 +38,46 @@ from app.appointments.forms import AppointmentForm, FeedbackForm
 def request_tutoria():
     """Request a new tutoring session (status='pending')."""
     form = AppointmentForm()
+
+    # Pre-seleccionar docente y fecha/hora si vienen por query string (desde horarios disponibles)
+    teacher_id = request.args.get('teacher_id', type=int)
+    if teacher_id and request.method == 'GET':
+        teacher = User.query.get(teacher_id)
+        if teacher and teacher.role == 'docente':
+            form.teacher.data = teacher_id
+
+        # Pre-fill date and time from slot (day=0-6, time=HH:MM)
+        slot_day = request.args.get('day', type=int)
+        slot_time = request.args.get('time')
+        if slot_day is not None and slot_time:
+            try:
+                hour, minute = map(int, slot_time.split(':'))
+                proposed_time = time(hour, minute)
+                proposed_date = _next_weekday(slot_day, proposed_time)
+                form.scheduled_date.data = proposed_date
+                form.scheduled_time.data = proposed_time
+            except (ValueError, TypeError):
+                pass
+
     if form.validate_on_submit():
+        # Validar disponibilidad del docente para la fecha/hora seleccionada
+        day_of_week = form.scheduled_date.data.weekday()
+        slot = Availability.query.filter(
+            Availability.teacher_id == form.teacher.data,
+            Availability.day_of_week == day_of_week,
+            Availability.is_available == True,
+            Availability.start_time <= form.scheduled_time.data,
+            Availability.end_time > form.scheduled_time.data,
+        ).first()
+
+        if not slot:
+            flash(
+                'El docente seleccionado no tiene disponibilidad '
+                'en esa fecha y hora.',
+                'warning',
+            )
+            return render_template('appointments/request.html', form=form)
+
         appointment = Appointment(
             student_id=current_user.id,
             teacher_id=form.teacher.data,
