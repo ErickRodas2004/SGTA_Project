@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Acceso denegado — SGTA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="py-5">
+            <h1 class="display-1 text-danger fw-bold">403</h1>
+            <div class="mb-4">
+                <i class="bi bi-shield-exclamation display-3 text-danger"></i>
+            </div>
+            <h3 class="mb-3">No tienes permiso</h3>
+            <p class="text-muted mb-4">
+                No tienes los permisos necesarios para acceder a esta página.
+                Si crees que esto es un error, contacta al administrador del sistema.
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                    <i class="bi bi-house me-1"></i>Ir al inicio
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-box-arrow-right me-1"></i>Cerrar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Disponibilidad — SGTA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left column: existing slots -->
+    <div class="col-lg-7 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-calendar-week me-2"></i>Mi Disponibilidad</h2>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Día</th>
+                                <th>Desde</th>
+                                <th>Hasta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in slots %}
+                            <tr>
+                                <td>{{ slot.id }}</td>
+                                <td>{{ day_map.get(slot.day_of_week, slot.day_of_week) }}</td>
+                                <td>{{ slot.start_time.strftime('%H:%M') }}</td>
+                                <td>{{ slot.end_time.strftime('%H:%M') }}</td>
+                                <td>
+                                    <form action="{{ url_for('availability.delete_slot', id=slot.id) }}"
+                                          method="POST"
+                                          class="d-inline"
+                                          onsubmit="return confirm('¿Eliminar este bloque de disponibilidad?');">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Eliminar bloque">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox me-2 fs-4"></i>
+                                    No has registrado disponibilidad.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if slots %}
+        <p class="text-muted small mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Total: {{ slots|length }} bloque(s) registrado(s).
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Right column: add new slot form -->
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-plus-circle display-5 text-primary"></i>
+                    <h4 class="mt-2">Agregar Bloque</h4>
+                    <p class="text-muted small">Registra un horario disponible para tutorías</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('availability.create_slot') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.day_of_week.label(class='form-label') }}
+                        {{ form.day_of_week(class='form-select' + (' is-invalid' if form.day_of_week.errors else '')) }}
+                        {% for error in form.day_of_week.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.start_time.label(class='form-label') }}
+                            {{ form.start_time(class='form-control' + (' is-invalid' if form.start_time.errors else '')) }}
+                            {% for error in form.start_time.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.end_time.label(class='form-label') }}
+                            {{ form.end_time(class='form-control' + (' is-invalid' if form.end_time.errors else '')) }}
+                            {% for error in form.end_time.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {{ form.submit(class='btn btn-primary w-100') }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

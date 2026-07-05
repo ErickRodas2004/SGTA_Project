@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Auditoría — SGTA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-search me-2"></i>Registro de Auditoría</h2>
+</div>
+
+<!-- Filter Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('audit.view_audit_log') }}" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="action" class="form-label fw-semibold">Filtrar por acción</label>
+                <select name="action" id="action" class="form-select">
+                    <option value="">Todas las acciones</option>
+                    {% for action in distinct_actions %}
+                    <option value="{{ action }}" {% if action_filter == action %}selected{% endif %}>
+                        {{ action }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Filtrar
+                </button>
+            </div>
+            {% if action_filter %}
+            <div class="col-md-2">
+                <a href="{{ url_for('audit.view_audit_log') }}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Audit Log Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Usuario</th>
+                        <th>Acción</th>
+                        <th>Tabla</th>
+                        <th>ID Registro</th>
+                        <th>IP</th>
+                        <th>Detalles</th>
+                        <th>Fecha/Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry.id }}</td>
+                        <td>
+                            <i class="bi bi-person-circle me-1"></i>{{ entry.username }}
+                        </td>
+                        <td>
+                            <span class="badge bg-info text-dark">{{ entry.action }}</span>
+                        </td>
+                        <td><code>{{ entry.table_affected }}</code></td>
+                        <td>
+                            {% if entry.record_id %}
+                            {{ entry.record_id }}
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td><code>{{ entry.ip_address }}</code></td>
+                        <td>
+                            {% if entry.details %}
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#detail-{{ entry.id }}"
+                                    aria-expanded="false">
+                                <i class="bi bi-zoom-in"></i>
+                            </button>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small" title="{{ entry.created_at.strftime('%Y-%m-%d %H:%M:%S') }}">
+                            {{ entry.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                    </tr>
+                    {% if entry.details %}
+                    <tr class="collapse" id="detail-{{ entry.id }}">
+                        <td colspan="8" class="bg-light">
+                            <pre class="mb-0 small"><code>{{ entry.details }}</code></pre>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox me-2 fs-4"></i>No hay registros de auditoría.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<nav class="mt-4" aria-label="Navegación de auditoría">
+    <ul class="pagination justify-content-center">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('audit.view_audit_log', page=pagination.prev_num, action=action_filter if action_filter else None) }}">
+                <i class="bi bi-chevron-left"></i> Anterior
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link"><i class="bi bi-chevron-left"></i> Anterior</span>
+        </li>
+        {% endif %}
+
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('audit.view_audit_log', page=page_num, action=action_filter if action_filter else None) }}">{{ page_num }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">…</span>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('audit.view_audit_log', page=pagination.next_num, action=action_filter if action_filter else None) }}">
+                Siguiente <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Siguiente <i class="bi bi-chevron-right"></i></span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

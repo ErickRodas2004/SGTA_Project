@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión — SGTA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-shield-check display-4 text-primary"></i>
+                    <h3 class="mt-2">Iniciar sesión</h3>
+                    <p class="text-muted small">Ingresa tus credenciales para acceder al sistema</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.username.label(class='form-label') }}
+                        {{ form.username(class='form-control' + (' is-invalid' if form.username.errors else '')) }}
+                        {% for error in form.username.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password.label(class='form-label') }}
+                        {{ form.password(class='form-control' + (' is-invalid' if form.password.errors else '')) }}
+                        {% for error in form.password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.remember_me(class='form-check-input') }}
+                        {{ form.remember_me.label(class='form-check-label') }}
+                    </div>
+
+                    {{ form.submit(class='btn btn-primary w-100') }}
+                </form>
+
+                <hr class="my-4">
+                <p class="text-center mb-0">
+                    ¿No tienes cuenta?
+                    <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Regístrate aquí</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

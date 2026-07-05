@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Docente — SGTA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-workspace me-2"></i>Panel de Docente</h2>
+    <span class="badge bg-success fs-6">{{ current_user.username }}</span>
+</div>
+
+<div class="row g-4">
+    <!-- Card: Mi Disponibilidad -->
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-primary">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-week display-5 text-primary"></i>
+                <h5 class="card-title mt-3">Mi Disponibilidad</h5>
+                <p class="card-text text-muted">
+                    Administra tus horarios disponibles para tutorías.
+                </p>
+                <a href="{{ url_for('availability.manage_availability') }}"
+                   class="btn btn-primary stretched-link">
+                    <i class="bi bi-arrow-right me-1"></i>Gestionar disponibilidad
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Estudiantes Agendados -->
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-success">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-5 text-success"></i>
+                <h5 class="card-title mt-3">Estudiantes Agendados</h5>
+                <p class="card-text text-muted">
+                    Revisa y acepta solicitudes de tutoría de estudiantes.
+                </p>
+                <a href="{{ url_for('appointments.assigned_students') }}"
+                   class="btn btn-success stretched-link">
+                    <i class="bi bi-arrow-right me-1"></i>Ver agendados
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

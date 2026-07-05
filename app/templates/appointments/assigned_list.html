@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Estudiantes Agendados — SGTA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people me-2"></i>Estudiantes Agendados</h2>
+</div>
+
+{% if grouped.pending %}
+<h5 class="mb-3 text-warning">
+    <i class="bi bi-hourglass-split me-1"></i>Pendientes ({{ grouped.pending|length }})
+</h5>
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-warning">
+                    <tr>
+                        <th>#</th>
+                        <th>Estudiante</th>
+                        <th>Materia</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in grouped.pending %}
+                    <tr>
+                        <td>{{ appt.id }}</td>
+                        <td><i class="bi bi-person-circle me-1"></i>{{ appt.student.username }}</td>
+                        <td>{{ appt.subject }}</td>
+                        <td class="text-muted small">{{ appt.description or '—' }}</td>
+                        <td>{{ appt.scheduled_date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ appt.scheduled_time.strftime('%H:%M') }}</td>
+                        <td>
+                            <form action="{{ url_for('appointments.accept_tutoria', id=appt.id) }}"
+                                  method="POST"
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle me-1"></i>Aceptar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if grouped.accepted %}
+<h5 class="mb-3 text-primary">
+    <i class="bi bi-check-circle me-1"></i>Aceptadas ({{ grouped.accepted|length }})
+</h5>
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-primary">
+                    <tr>
+                        <th>#</th>
+                        <th>Estudiante</th>
+                        <th>Materia</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in grouped.accepted %}
+                    <tr>
+                        <td>{{ appt.id }}</td>
+                        <td><i class="bi bi-person-circle me-1"></i>{{ appt.student.username }}</td>
+                        <td>{{ appt.subject }}</td>
+                        <td>{{ appt.scheduled_date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ appt.scheduled_time.strftime('%H:%M') }}</td>
+                        <td>
+                            <a href="{{ url_for('appointments.feedback_form', id=appt.id) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-chat-dots me-1"></i>Feedback
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if grouped.completed %}
+<h5 class="mb-3 text-success">
+    <i class="bi bi-check-all me-1"></i>Completadas ({{ grouped.completed|length }})
+</h5>
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-success">
+                    <tr>
+                        <th>#</th>
+                        <th>Estudiante</th>
+                        <th>Materia</th>
+                        <th>Fecha</th>
+                        <th>Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in grouped.completed %}
+                    <tr>
+                        <td>{{ appt.id }}</td>
+                        <td><i class="bi bi-person-circle me-1"></i>{{ appt.student.username }}</td>
+                        <td>{{ appt.subject }}</td>
+                        <td>{{ appt.scheduled_date.strftime('%d/%m/%Y') }}</td>
+                        <td class="text-muted small">{{ appt.feedback|truncate(80) or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if grouped.cancelled %}
+<h5 class="mb-3 text-secondary">
+    <i class="bi bi-x-circle me-1"></i>Canceladas ({{ grouped.cancelled|length }})
+</h5>
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>#</th>
+                        <th>Estudiante</th>
+                        <th>Materia</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in grouped.cancelled %}
+                    <tr>
+                        <td>{{ appt.id }}</td>
+                        <td><i class="bi bi-person-circle me-1"></i>{{ appt.student.username }}</td>
+                        <td>{{ appt.subject }}</td>
+                        <td>{{ appt.scheduled_date.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if not grouped.pending and not grouped.accepted and not grouped.completed and not grouped.cancelled %}
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+        <p class="mb-0">No tienes estudiantes agendados todavía.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
