@@ -7,6 +7,9 @@
 * *Pincay Salazar Marlon Jose*
 * *Erick Josue Rodas Quimis*
 
+## 🎥 Video de Defensa del Proyecto
+https://youtu.be/IhgYUO7sXV4
+
 ## 📝Descripción del Proyecto
 El **Sistema de Gestión de Tutorías Académicas (SGTA)** es una aplicación web desarrollada en Python diseñada para optimizar y asegurar el proceso de asesorías universitarias. El sistema centraliza la comunicación académica permitiendo a los estudiantes solicitar tutorías de manera eficiente, a los docentes organizar sus agendas y registrar retroalimentación, y a la administración gestionar los accesos, todo bajo un entorno estrictamente seguro y auditable.
 
@@ -29,5 +32,4 @@ El proyecto fue construido priorizando un desarrollo ágil y seguro, utilizando 
     *   **Flask-WTF:** Mitigación de ataques CSRF en la validación de formularios.
 *   **Trazabilidad:** Tabla de auditoría (AuditLog) que captura acciones de usuarios, tablas afectadas, IPs y marcas de tiempo.
 
-## 🎥 Video de Defensa del Proyecto
-https://youtu.be/IhgYUO7sXV4
+
